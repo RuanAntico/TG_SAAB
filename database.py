@@ -1,13 +1,15 @@
 import sqlite3
 
+def get_connection():
+    conn = sqlite3.connect("database.db", check_same_thread=False)
+    cursor = conn.cursor()
 
-conn = sqlite3.connect("database.db", check_same_thread=False)
-cursor = conn.cursor()
-
-
-
+def crir_Tab():
     
-cursor.executescript("""
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    cursor.executescript("""
     CREATE TABLE IF NOT EXISTS USUARIO (
         COD_USUARIO INTEGER PRIMARY KEY AUTOINCREMENT,
         LOGIN_USER TEXT UNIQUE,
@@ -54,5 +56,5 @@ cursor.executescript("""
     );
     """)
 
-conn.commit()
-conn.close()
+    conn.commit()
+    conn.close()
