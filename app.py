@@ -16,7 +16,7 @@ def add_header(response):
     response.headers["Expires"] = "0"
     return response
 
-# Registrar o Blueprint
+
 app.register_blueprint(login_bp, url_prefix='/login')
 app.register_blueprint(contarDedos_bp, url_prefix='/contador')
 

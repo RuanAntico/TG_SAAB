@@ -4,18 +4,55 @@
     <head>
         <meta charset="UTF-8">
         <title>login</title>
+        <style>
+            .front_login {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;   
+            background: #fff;  
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            text-align: center;
+        }
+
+        .front_login img {
+            max-width: 120px;
+            margin: 0 auto 15px; 
+            display: block;
+        }
+
+
+        .btn {
+            display: block;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            margin-bottom: 10px;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        </style>
     </head> 
     <body>
-        <h1>login</h1>
+        <div class="front_login">
+        <img src="{{ url_for('static', filename='imagens/SAAB_Logo.png') }}" 
+         alt="Logo SAAB" class="logo-saab">
         <form action="/login/auth" method="post">
         <label>Login:</label>
         <input type="text" name="LOGIN_USER" required><br><br>
         
-        <label>SENHA:</label>
+        <label>Senha:</label>
         <input type="password" name="SENHA" required><br><br>
         
-
-        <button type="submit">Fazer Login</button>
+        <button type="submit" class="btn">Fazer Login</button>
+        </div>
     </form>
     
   

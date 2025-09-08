@@ -11,10 +11,36 @@
             max-width: 200px;
             margin: 50px auto;
         }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            min-height: 100vh;
+            width: 200px;
+            background-color: #333;
+            transform: translateX(-100%);
+            padding-top: 20px;
+        }
+
+        .sidebar nav ul {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch; 
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
         .btn {
+            display: block;
             padding: 15px;
             background-color: #007bff;
             color: white;
+            margin-bottom: 10px;
             text-decoration: none;
             text-align: center;
             border-radius: 5px;
@@ -24,15 +50,69 @@
         .btn:hover {
             background-color: #0056b3;
         }
+         .front_login img {
+            max-width: 400px;
+            margin: 0 auto 15px;
+            display: block;
+        }
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            transition: left 0.3s ease;
+            z-index: 1100;
+        }
+
+    .sidebar.active ~ .toggle-btn {
+        left: 220px;
+    }
+
+    .background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .background img {
+        width: 100%;
+    height: 100%;
+    object-fit: fill;
+    }
+
+
     </style>
 </head> 
 <body>
+    <div class="pgInicial">
+         <div class="background">
+    <img src="{{ url_for('static', filename='imagens/SAAB_Logo.png') }}" 
+         alt="Logo SAAB">
+</div>
+
     <h1 style="text-align: center;">Sistema de Gerenciamento</h1>
     
     <div class="menu">
-        <!-- Links para as páginas (NÃO são formulários) -->
-        <a href="/contador/" class="btn">Contador de dedos</a>
-        <a href="/login/" class="btn">Voltar para Login</a>
+        
+        
+        <aside class="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="/contador/" class="btn">Contador de dedos</a></li>
+                    <li><a href="/login/" class="btn">Voltar para Login</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <button class="toggle-btn">☰ Menu </button>
     </div>
+    </div>
+    <script>
+        document.querySelector(".toggle-btn").addEventListener("click", () => {
+            document.querySelector(".sidebar").classList.toggle("active");
+        });
+    </script>
 </body>
 </html>

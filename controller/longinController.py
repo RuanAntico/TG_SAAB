@@ -24,7 +24,7 @@ def login_post():
             return render_template("loginView.html", erro="Preencha todos os campos")
       
     except Exception as e:
-         print(f"Erro interno: {str(e)}")  # Log do erro
+         print(f"Erro interno: {str(e)}")  
          return render_template("loginView.html", erro="Erro interno do sistema")
      
 @login_bp.route("/pagInicialView.html")
