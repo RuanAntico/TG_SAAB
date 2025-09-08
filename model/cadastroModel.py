@@ -1,18 +1,26 @@
 import sqlite3
+import bcrypt
+
 from database import get_connection
 
 class CadastrarDados:
-    
+
     @staticmethod
     def criar_usuario(LOGIN_USER, SENHA):
+
+        senha = SENHA
+
+        hash = bcrypt.hashpw(senha, bcrypt.gensalt(8))
+
+
         try:
             conn = get_connection()
             cursor = conn.cursor()
-            
-            cursor.execute("INSERT INTO USUARIO(LOGIN_USER, SENHA) VALUES (?, ?)", (LOGIN_USER, SENHA))
+
+            cursor.execute("INSERT INTO USUARIO(LOGIN_USER, SENHA) VALUES (?, ?)", (LOGIN_USER, hash))
             conn.commit()
             return True
-        
+
         except sqlite3.IntegrityError as e:
             print(f"Erro de integridade: {e}")
             conn.rollback()
@@ -22,18 +30,18 @@ class CadastrarDados:
             conn.rollback()
             return False
         finally:
-            conn.close()  
-    
+            conn.close()
+
     @staticmethod
     def criar_pessoa(CPF, RG, NOME, TELEFONE, DT_NASC, EMAIL):
         try:
             conn = get_connection()
             cursor = conn.cursor()
-            
+
             cursor.execute("INSERT INTO PESSOA(CPF, RG, NOME, TELEFONE, DT_NASC, EMAIL) VALUES (?, ?, ?, ?, ?, ?)", (CPF, RG, NOME, TELEFONE, DT_NASC, EMAIL))
             conn.commit()
             return True
-            
+
         except sqlite3.IntegrityError as e:
             print(f"Erro de integridade: {e}")
             conn.rollback()
@@ -43,4 +51,4 @@ class CadastrarDados:
             conn.rollback()
             return False
         finally:
-            conn.close()    
+            conn.close()

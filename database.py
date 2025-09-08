@@ -1,10 +1,16 @@
 import sqlite3
+from flask import Blueprint, render_template, Response
+import os
+import bcrypt
+
+template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'view'))
+database_bp = Blueprint("contador", __name__, template_folder=template_dir)
 
 def get_connection():
     conn = sqlite3.connect("database.db", check_same_thread=False)
-    cursor = conn.cursor()
+    return conn
 
-def crir_Tab():
+def criar_tab():
     
     conn = get_connection()
     cursor = conn.cursor()
@@ -55,6 +61,14 @@ def crir_Tab():
         FOREIGN KEY (COD_ALUNO) REFERENCES ALUNO(COD_ALUNO)
     );
     """)
+    
+    cursor.execute("SELECT 1 FROM USUARIO WHERE LOGIN_USER = ?", ("adm",))
+    if cursor.fetchone() is None:
+        senha_hash = bcrypt.hashpw("adm".encode("utf-8"), bcrypt.gensalt())
+        cursor.execute(
+            "INSERT INTO USUARIO (LOGIN_USER, SENHA) VALUES (?, ?)",
+            ("adm", senha_hash)
+        )
 
     conn.commit()
     conn.close()
