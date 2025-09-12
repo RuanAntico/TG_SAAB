@@ -30,7 +30,12 @@ def cont_dedo():
     
     # Gerar nova pergunta ao carregar a página
     num1, num2, resultado, unidade = gerarMultiplicacao()
-    pergunta_atual = f"{num1} x {num2} = ?"
+    if resultado >=10:
+        strResultado = str(resultado)
+        strResultado = strResultado[:1]
+        pergunta_atual = f"{num1} x {num2} = {strResultado}?"
+    else:
+        pergunta_atual = f"{num1} x {num2} = 0?"
     resposta_correta = resultado
     digito_unidade = unidade
     acertou = False
