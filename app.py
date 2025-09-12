@@ -2,6 +2,7 @@
 from flask import Flask
 from controller.longinController import login_bp
 from controller.contadorDedosController import contarDedos_bp
+from controller.cadastroPessoaController import cadPessoa_bp
 from database import criar_tab
 
 criar_tab()
@@ -19,6 +20,7 @@ def add_header(response):
 
 app.register_blueprint(login_bp, url_prefix='/login')
 app.register_blueprint(contarDedos_bp, url_prefix='/contador')
+app.register_blueprint(cadPessoa_bp, url_prefix='/cadastro')
 
 @app.route("/")
 def root():

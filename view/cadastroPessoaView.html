@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <title>Cadastrar</title>
+    </head> 
+    <body>
+        <h1>Cadastrar</h1>
+        <form action="/cadastro/cadUser" method="post">
+
+<label>CPF:</label>
+<input type="text" name="CPF"><br><br>
+
+<label>RG:</label>
+<input type="text" name="RG"><br><br>
+
+<label>Nome:</label>
+<input type="text" name="NOME"><br><br>
+
+<label>Telefone:</label>
+<input type="text" name="TELEFONE"><br><br>
+
+<label>Data Nascimento:</label>
+<input type="date" name="DT_NASC"><br><br>
+
+<label>Email:</label>
+<input type="email" name="EMAIL"><br><br>
+
+<label>Login:</label>
+<input type="text" name="LOGIN_USER"><br><br>
+
+<label>Senha:</label>
+<input type="password" name="SENHA"><br><br>
+
+<label for="tipo">Escolha uma opção:</label>
+<select id="tipo" name="TIPO_USER">
+  <option value="">-- Selecione --</option>
+  <option value="valor1">Administrador</option>
+  <option value="valor2">Professor</option>
+  <option value="valor3">Aluno</option>
+</select>
+
+
+<button type="submit">Cadastrar</button>
+        </form>
+   
+    </body>
+</html>
