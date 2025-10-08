@@ -51,3 +51,27 @@ class CadastrarDados:
             return False
         finally:
             conn.close()
+
+
+'''
+
+@staticmethod
+    def criar_aluno():
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            cursor.execute("INSERT INTO ALUNO() VALUES (?, ?, ?, ?, ?, ?)", (CPF, RG, NOME, TELEFONE, DT_NASC, EMAIL))
+            conn.commit()
+            return True
+
+        except sqlite3.IntegrityError as e:
+            print(f"Erro de integridade: {e}")
+            conn.rollback()
+            return False
+        except Exception as e:
+            print(f"Erro ao criar pessoa: {e}")
+            conn.rollback()
+            return False
+        finally:
+            conn.close()'''

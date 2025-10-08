@@ -2,7 +2,14 @@
 <html lang="pt-br">
     <head>
         <meta charset="UTF-8">
-        <title>Cadastrar</title>
+        <title>Cadastrar</title>        
+        <style>
+
+            #CampoTurma {
+                display: none;
+            }
+
+        </style>
     </head> 
     <body>
         <h1>Cadastrar</h1>
@@ -32,17 +39,47 @@
 <label>Senha:</label>
 <input type="password" name="SENHA"><br><br>
 
-<label for="tipo">Escolha uma opção:</label>
-<select id="tipo" name="TIPO_USER">
+
+<div id="CampoTurma">
+    <label>Turma:</label>
+    <input type="text" name="CampoTurma"><br><br>
+</div>
+
+    
+
+<label for="TIPO_USER">Escolha uma opção:</label>
+<select id="TIPO_USER" name="TIPO_USER">
   <option value="">-- Selecione --</option>
   <option value="valor1">Administrador</option>
   <option value="valor2">Professor</option>
   <option value="valor3">Aluno</option>
 </select>
 
+<script>
+
+    const tipoPessoa = document.getElementById("TIPO_USER")
+    const campoTurma = document.getElementById("CampoTurma")
+    tipoPessoa.addEventListener("change", function(){
+
+        if (tipoPessoa.value === "valor3"){
+                CampoTurma.style.display = "block"        
+        }
+        else if (tipoPessoa.value === "valor2"){
+                CampoTurma.style.display = "block"        
+        }
+        else{
+            CampoTurma.style.display = "none"        
+        }
+
+    }); 
+
+    
+
+</script>
+
 
 <button type="submit">Cadastrar</button>
         </form>
-   
+        
     </body>
 </html>
