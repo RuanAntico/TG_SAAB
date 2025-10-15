@@ -1,0 +1,11 @@
+pip install flask
+pip install flask_sqlalchemy
+pip install sqlalchemy
+pip install sqlalchemy-pyodbc
+pip install pyodbc
+pip install opencv-python
+pip install numpy
+pip install pandas
+pip install matplotlib
+pip install requests
+pip install pillow

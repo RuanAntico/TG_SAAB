@@ -1,0 +1,27 @@
+-- 1. Criar o banco caso ainda não exista
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'SAAB_Database')
+BEGIN
+    CREATE DATABASE [SAAB_Database];
+END
+GO
+
+-- 2. Criar login SQL com senha
+IF NOT EXISTS (SELECT name FROM sys.sql_logins WHERE name = 'saab_user')
+BEGIN
+    CREATE LOGIN saab_user WITH PASSWORD = 'Saab@123';
+END
+GO
+
+-- 3. Entrar no banco e criar usuário vinculado ao login
+USE [SAAB_Database];
+GO
+
+IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'saab_user')
+BEGIN
+    CREATE USER saab_user FOR LOGIN saab_user;
+END
+GO
+
+-- 4. Dar permissões (db_owner para facilitar uso)
+ALTER ROLE db_owner ADD MEMBER saab_user;
+GO
