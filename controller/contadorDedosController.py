@@ -1,60 +1,79 @@
-from flask import Blueprint, render_template, Response
+from flask import Blueprint, render_template, Response, jsonify
 from model.contadorDedosModel import count_fingers
 import cv2
 import os
 import mediapipe as mp
 import random
+import threading
+import time
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'view'))
-contarDedos_bp = Blueprint("contador", __name__, template_folder = template_dir)
+contarDedos_bp = Blueprint("contador", __name__, template_folder=template_dir)
 
-# Variáveis globais para o jogo
+# --- estado global visível ao front ---
 pergunta_atual = None
 resposta_correta = None
 digito_unidade = None
 acertou = False
 
+# status expostos
+current_finger_count = 0
+current_status_text = "Aguardando..."
+stream_ready = False
+frame_count = 0
+
+# MediaPipe helpers
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
+
 def gerarMultiplicacao():
     num1 = random.randint(1, 10)
     num2 = random.randint(1, 10)
-    
     resultado = num1 * num2
-    # Pegar apenas o último dígito (unidade)
-    digito_unidade = resultado % 10
-    
-    return num1, num2, resultado, digito_unidade
+    unidade = resultado % 10
+    return num1, num2, resultado, unidade
 
-@contarDedos_bp.route('/')
-def cont_dedo():
+def nova_pergunta():
     global pergunta_atual, resposta_correta, digito_unidade, acertou
-    
-    # Gerar nova pergunta ao carregar a página
     num1, num2, resultado, unidade = gerarMultiplicacao()
-    if resultado >=10:
-        strResultado = str(resultado)
-        strResultado = strResultado[:1]
-        pergunta_atual = f"{num1} x {num2} = {strResultado}?"
+    if resultado >= 10:
+        pergunta_atual = f"{num1} x {num2} = {str(resultado)[:1]}?"
     else:
         pergunta_atual = f"{num1} x {num2} = 0?"
     resposta_correta = resultado
     digito_unidade = unidade
     acertou = False
-    
+
+@contarDedos_bp.route('/')
+def cont_dedo():
+    nova_pergunta()
     return render_template('contadorDedosView.html')
 
 @contarDedos_bp.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-mp_hands = mp.solutions.hands
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
+@contarDedos_bp.route('/status')
+def status():
+    # retorna JSON com o estado atual para o front-end
+    return jsonify({
+        "pergunta": pergunta_atual,
+        "dedos": current_finger_count,
+        "status": current_status_text,
+        "stream_ready": stream_ready,
+        "frame_count": frame_count
+    })
 
 def generate_frames():
     global pergunta_atual, resposta_correta, digito_unidade, acertou
-    
+    global current_finger_count, current_status_text, stream_ready, frame_count
+
     cap = cv2.VideoCapture(0)
-    
+    # opcional: reduzir resolução para performance
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
     with mp_hands.Hands(
         model_complexity=0,
         min_detection_confidence=0.5,
@@ -64,12 +83,15 @@ def generate_frames():
         while True:
             success, image = cap.read()
             if not success:
+                # pequena pausa pra evitar busy loop se falhar
+                time.sleep(0.05)
                 continue
 
-            # Espelhar para visualização
+            # marcamos que o stream já entregou um frame
+            stream_ready = True
+            frame_count += 1
+
             image = cv2.flip(image, 1)
-            
-            # Converter para RGB
             image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = hands.process(image_rgb)
 
@@ -78,11 +100,10 @@ def generate_frames():
 
             if results.multi_hand_landmarks:
                 for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
-                    # Determinar mão esquerda/direita
                     hand_label = handedness.classification[0].label
                     handedness_text = hand_label
 
-                    # Desenhar landmarks
+                    # desenho (pode comentar se quiser performance)
                     mp_drawing.draw_landmarks(
                         image,
                         hand_landmarks,
@@ -91,61 +112,35 @@ def generate_frames():
                         mp_drawing_styles.get_default_hand_connections_style()
                     )
 
-                    # Contar dedos
                     finger_count += count_fingers(hand_landmarks, hand_label)
 
-            # Verificar se acertou o ÚLTIMO DÍGITO da multiplicação
+            # atualiza variáveis públicas usadas pelo front
+            current_finger_count = finger_count
+
+            # Lógica de status textual
             if finger_count == digito_unidade and not acertou:
                 acertou = True
-                # Gerar nova pergunta após 2 segundos
-                def nova_pergunta():
-                    global pergunta_atual, resposta_correta, digito_unidade, acertou
-                    num1, num2, resultado, unidade = gerarMultiplicacao()
-                    if resultado >=10:
-                        strResultado = str(resultado)
-                        strResultado = strResultado[:1]
-                        pergunta_atual = f"{num1} x {num2} = {strResultado}?"
-                    else:
-                        pergunta_atual = f"{num1} x {num2} = 0?"
-                    resposta_correta = resultado
-                    digito_unidade = unidade
-                    acertou = False
-                
-                # Usar thread ou timer para não travar o fluxo de vídeo
-                import threading
-                threading.Timer(2.0, nova_pergunta).start()
-
-            # Adicionar textos na imagem
-            # Pergunta
-            cv2.putText(image, pergunta_atual, (10, 30), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
-            
-            # Contador de dedos
-            cv2.putText(image, f'Dedos: {finger_count}', (10, 70), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-
-            # Resposta completa e dígito da unidade (para debug/ajuda)
-            cv2.putText(image, f'Resposta: {resposta_correta}', (10, 110), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2, cv2.LINE_AA)
-            cv2.putText(image, f'Mostre: {digito_unidade} (ultimo digito)', (10, 140), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2, cv2.LINE_AA)
-
-            # Mensagem de acerto
-            if acertou:
-                cv2.putText(image, "CORRETO! 👍", (image.shape[1]//2 - 100, 50), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3, cv2.LINE_AA)
+                current_status_text = "CORRETO!"
+                # agenda nova pergunta sem travar o loop
+                threading.Timer(3.5, nova_pergunta).start()
+            elif acertou:
+                current_status_text = "CORRETO!"
             elif finger_count > 0 and finger_count != digito_unidade:
-                cv2.putText(image, "Tente novamente!", (image.shape[1]//2 - 100, 50), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
+                current_status_text = "Tente novamente!"
+            else:
+                current_status_text = "Aguardando..."
 
-            if handedness_text:
-                cv2.putText(image, f'Maos: {handedness_text}', (10, 170), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
+            # ** não desenhe texto dentro da imagem se você quer mostrar fora **
+            # Se quiser manter, comente as linhas abaixo.
+            # cv2.putText(image, f'Dedos: {finger_count}', (10, 70),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
 
             # Codificar como JPEG
             ret, buffer = cv2.imencode('.jpg', image)
             frame = buffer.tobytes()
 
-            # Stream no formato MJPEG
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+    # se o with terminar, libera camera
+    cap.release()
