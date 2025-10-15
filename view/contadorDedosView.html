@@ -1,11 +1,71 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Contador de Dedos</title>
+  <meta charset="UTF-8">
+  <title>Contador de Dedos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;padding:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+         font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#89f7fe,#66a6ff);color:#333;overflow:hidden}
+    h1{font-family:'Baloo 2',cursive;font-size:34px;color:#004e92;margin-bottom:16px}
+    .app-container{display:flex;gap:28px;align-items:center;background:rgba(255,255,255,0.92);padding:24px;border-radius:20px;
+                   box-shadow:0 10px 30px rgba(0,0,0,0.12);max-width:1100px;width:92%}
+    #videoStream{width:640px;height:480px;border-radius:16px;object-fit:cover;background:#000;box-shadow:0 6px 18px rgba(0,0,0,0.25)}
+    .info{display:flex;flex-direction:column;gap:18px;width:320px}
+    .info-box{background:#fff;border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+    .info-box h2{margin:0 0 8px;font-family:'Baloo 2',cursive;color:#0077b6;font-size:18px}
+    .info-box p{margin:0;font-size:28px;font-weight:700;color:#222}
+    #loading{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;
+             background:rgba(255,255,255,0.96);z-index:999;transition:opacity .35s;color:#0077b6;font-weight:700}
+    .spinner{border:6px solid #eee;border-top:6px solid #0077b6;border-radius:50%;width:64px;height:64px;animation:spin 1s linear infinite;margin-bottom:18px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
 </head>
 <body>
-    <h1>Contador de Dedos com MediaPipe</h1>
-    <img src="{{ url_for('contador.video_feed') }}" width="800" height="600">
+  <h1>Vamos Contar Dedos!</h1>
+
+  <div class="app-container">
+    <img id="videoStream" src="{{ url_for('contador.video_feed') }}" alt="Fluxo de vídeo">
+    <div class="info">
+      <div class="info-box"><h2>Pergunta</h2><p id="pergunta">Carregando...</p></div>
+      <div class="info-box"><h2>Dedos detectados</h2><p id="dedos">0</p></div>
+      <div class="info-box"><h2>Status</h2><p id="status">Aguardando...</p></div>
+    </div>
+  </div>
+
+  <div id="loading"><div class="spinner"></div>Iniciando câmera...</div>
+
+  <script>
+    const loading = document.getElementById('loading');
+    const video = document.getElementById('videoStream');
+    const statusUrl = "{{ url_for('contador.status') }}";
+
+    async function fetchStatus(){
+      try{
+        const res = await fetch(statusUrl, {cache:'no-store'});
+        if(!res.ok) return;
+        const data = await res.json();
+        document.getElementById('pergunta').textContent = data.pergunta || 'Carregando...';
+        document.getElementById('dedos').textContent = (data.dedos !== undefined) ? data.dedos : '0';
+        document.getElementById('status').textContent = data.status || 'Aguardando...';
+      }catch(e){}
+    }
+
+    // atualiza textos a cada 300ms
+    setInterval(fetchStatus, 300);
+
+    // garante que só sai do loading quando o vídeo tiver imagem real
+    function checkVideoStarted(){
+      if(video.naturalWidth > 0 && video.naturalHeight > 0){
+        loading.style.opacity = '0';
+        setTimeout(()=>loading.style.display='none',400);
+        clearInterval(checkInterval);
+      }
+    }
+
+    // checa a cada 200ms se o vídeo começou a renderizar frames
+    const checkInterval = setInterval(checkVideoStarted, 200);
+  </script>
 </body>
 </html>
