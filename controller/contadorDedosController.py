@@ -37,6 +37,8 @@ def gerarMultiplicacao():
 def nova_pergunta():
     global pergunta_atual, resposta_correta, digito_unidade, acertou
     num1, num2, resultado, unidade = gerarMultiplicacao()
+    if resultado % 10 == 0:
+        gerarMultiplicacao()
     if resultado >= 10:
         pergunta_atual = f"{num1} x {num2} = {str(resultado)[:1]}?"
     else:

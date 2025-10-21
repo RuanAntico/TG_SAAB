@@ -4,6 +4,7 @@ from controller.longinController import login_bp
 from controller.contadorDedosController import contarDedos_bp
 from controller.cadastroPessoaController import cadPessoa_bp
 from controller.pagInicialController import pagInicial_bp
+from controller.atividadesController import image_routes
 from database import criar_tab
 
 criar_tab()
@@ -23,11 +24,14 @@ app.register_blueprint(login_bp, url_prefix='/login')
 app.register_blueprint(contarDedos_bp, url_prefix='/contador')
 app.register_blueprint(cadPessoa_bp, url_prefix='/cadastro')
 app.register_blueprint(pagInicial_bp, url_prefix='/pagInicial')
+app.register_blueprint(image_routes, url_prefix='/atividades')
 
 @app.route("/")
 def root():
     from flask import redirect
     return redirect("/login")
+
+app.secret_key = '12345'
 
 if __name__ == "__main__":
     app.run(debug=True)

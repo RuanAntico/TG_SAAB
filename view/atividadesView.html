@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Atividades de Matemática</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #container-pergunta {
+            background-image: url("{{ url_for('static', filename='imagens/Atividades/fundo.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            width: 600px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        #texto-pergunta {
+            font-size: 4em;
+            color: white;
+            text-shadow: 3px 3px 6px #000000;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        #opcoes-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .opcao {
+            font-size: 1.8em;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            min-width: 100px;
+        }
+        .opcao:hover:not(:disabled) {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .opcao:disabled {
+            color: white;
+            opacity: 0.7;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        #form-proxima button {
+            font-size: 1.5em;
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #form-proxima button:hover {
+            background-color: #218838;
+        }
+        /* Estilos para o placar */
+        .placar-info {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin: 5px 0;
+        }
+        .mensagem-final {
+            font-size: 2em;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+{% if mensagem %}
+    <h2 class="mensagem-final">{{ mensagem }}</h2>
+    <form method="get" action="{{ url_for('atividades.index') }}">
+        <a href="{{ url_for('pagInicial.pagina') }}" class="btn">Pagina Inicial</a>
+    </form>
+{% endif %}
+
+
+{% if questao %}
+    
+    <h2 class="placar-info">{{ question_info }}</h2>
+    <h3 class="placar-info">{{ score_info }}</h3>
+
+    <div id="container-pergunta">
+        <h2 id="texto-pergunta">{{ questao.texto }}</h2>
+    </div>
+    
+    <div id="opcoes-container">
+        {% for op in questao.opcoes %}
+            <button class="opcao" data-valor="{{ op }}">{{ op }}</button>
+        {% endfor %}
+    </div>
+
+    <div id="resposta-correta" data-resposta="{{ questao.resposta }}" style="display: none;"></div>
+
+    <form method="get" action="{{ url_for('atividades.index') }}" id="form-proxima" style="display: none;">
+        
+        <input type="hidden" id="answer-result" name="answered" value="wrong">
+        
+        <button type="submit">Próxima Pergunta</button>
+    </form>
+
+{% endif %}
+
+
+<script>
+    const containerOpcoes = document.getElementById('opcoes-container');
+    
+    if (containerOpcoes) {
+        const botoesOpcao = document.querySelectorAll('.opcao');
+        const respostaCorretaEl = document.getElementById('resposta-correta');
+        const respostaCorreta = respostaCorretaEl.dataset.resposta;
+        const formProxima = document.getElementById('form-proxima');
+        
+        // Pega o campo oculto que acabamos de adicionar
+        const hiddenAnswerInput = document.getElementById('answer-result');
+
+        botoesOpcao.forEach(botao => {
+            botao.addEventListener('click', function() {
+                
+                const valorClicado = this.dataset.valor;
+                botoesOpcao.forEach(btn => btn.disabled = true);
+
+                // Verifica se está certo ou errado
+                if (valorClicado === respostaCorreta) {
+                    this.style.backgroundColor = 'green';
+                    
+                    // Altera o VALOR do campo oculto para 'correct'
+                    hiddenAnswerInput.value = 'correct';
+
+                } else {
+                    this.style.backgroundColor = 'red';
+                    // Se estiver errado, não fazemos nada.
+                    // O valor do campo já é 'wrong' por padrão.
+                }
+                
+                formProxima.style.display = 'block';
+            });
+        });
+    }
+</script>
+</body>
+</html>

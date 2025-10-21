@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request
 from model.cadastroModel import CadastrarDados
 import os
+import traceback
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'view'))
 cadPessoa_bp = Blueprint("cadastro", __name__, template_folder = template_dir)

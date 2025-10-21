@@ -7,8 +7,7 @@ template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'vi
 database_bp = Blueprint("contador", __name__, template_folder=template_dir)
 
 def get_connection():
-    # Substitua com os detalhes do seu servidor, banco de dados, usuário e senha
-    # É necessário ter o driver ODBC para SQL Server instalado na máquina
+  
     conn_str = (
         r'Driver={ODBC Driver 17 for SQL Server};'
         r'Server=DESKTOP-Q1GPVLA;'
@@ -23,8 +22,7 @@ def criar_tab():
     conn = get_connection()
     cursor = conn.cursor()
     
-    # OBS: executescript não existe no pyodbc, então cada comando é executado separadamente.
-    # A sintaxe SQL foi ajustada para o SQL Server.
+   
 
     # Tabela USUARIO
     cursor.execute("""

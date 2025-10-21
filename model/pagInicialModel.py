@@ -9,9 +9,8 @@ class VerificarLog:
             conn = get_connection()
             cursor = conn.cursor()
             
-            print(f"Buscando usuário: {COD_USUARIO}")  # Debug
+            print(f"Buscando usuário: {COD_USUARIO}")  
             
-            # Verificar se a tabela existe
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='USUARIO'")
             tabela_existe = cursor.fetchone()
             
@@ -19,18 +18,16 @@ class VerificarLog:
                 print("Tabela USUARIO não existe!")
                 return None
             
-            # Buscar usuário
             cursor.execute("SELECT * FROM USUARIO WHERE COD_USUARIO = ?", (COD_USUARIO,))
             usuario = cursor.fetchone()
             
             if usuario:
-                print(f"Usuário encontrado: {usuario}")  # Debug
-                # Converter para dicionário
+                print(f"Usuário encontrado: {usuario}") 
                 columns = [column[0] for column in cursor.description]
                 usuario_dict = dict(zip(columns, usuario))
                 return usuario_dict
             else:
-                print("Usuário não encontrado no banco")  # Debug
+                print("Usuário não encontrado no banco") 
                 return None
                 
         except Exception as e:
