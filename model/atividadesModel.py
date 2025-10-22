@@ -45,3 +45,22 @@ def gerar_opcoes(resposta_correta):
 
     random.shuffle(opcoes)
     return opcoes
+
+def gerar_pergunta_forma_geometrica():
+    formas = ["Círculo", "Quadrado", "Triângulo", "Retângulo"]
+
+    forma_correta = random.choice(formas)
+    nomes_errados = [f for f in formas if f != forma_correta]
+
+    opcoes = random.sample(nomes_errados, 3)
+    opcoes.append(forma_correta)
+    random.shuffle(opcoes)
+
+    return {
+        "texto": "Qual é essa forma geométrica?",
+        "forma": forma_correta,  # nome que o front vai usar pra desenhar
+        "resposta": forma_correta,
+        "opcoes": opcoes
+    }
+    
+    

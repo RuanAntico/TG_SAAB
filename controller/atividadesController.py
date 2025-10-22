@@ -2,7 +2,8 @@
 from flask import Blueprint, render_template, session, request
 import random
 import os
-from model.atividadesModel import gerar_pergunta_soma, gerar_pergunta_subtracao, gerar_opcoes
+from model.atividadesModel import gerar_pergunta_soma, gerar_pergunta_subtracao, gerar_opcoes, gerar_pergunta_forma_geometrica
+
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'view'))
 image_routes = Blueprint("atividades", __name__, template_folder = template_dir)
@@ -12,8 +13,18 @@ MAX_QUESTIONS = 10
 @image_routes.route("/")
 def index():
 
+    geradores = [gerar_pergunta_soma, gerar_pergunta_subtracao, gerar_pergunta_forma_geometrica]
+    funcao_escolhida = random.choice(geradores)
+
+    questao = funcao_escolhida()
+
+# Se for questão de forma, ela já vem com as opções
     current_num = session.get('question_number', 1)
     current_score = session.get('score', 0)
+
+    if "opcoes" not in questao:
+        opcoes = gerar_opcoes(questao["resposta"])
+        questao["opcoes"] = opcoes
 
     last_answer = request.args.get('answered')
     if last_answer == 'correct':
@@ -36,11 +47,7 @@ def index():
     session['question_number'] = current_num + 1
     session['score'] = current_score
 
-    geradores = [gerar_pergunta_soma, gerar_pergunta_subtracao]
-    funcao_escolhida = random.choice(geradores)
-    questao = funcao_escolhida()
-    opcoes = gerar_opcoes(questao["resposta"])
-    questao["opcoes"] = opcoes
+   
 
     return render_template(
         "atividadesView.html",

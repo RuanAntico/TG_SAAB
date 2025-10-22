@@ -16,6 +16,8 @@
             padding: 20px;
             box-sizing: border-box;
         }
+        
+        /* O container-pergunta (o fundo) */
         #container-pergunta {
             background-image: url("{{ url_for('static', filename='imagens/Atividades/fundo.jpg') }}");
             background-size: cover;
@@ -29,8 +31,14 @@
             border-radius: 10px;
             margin-bottom: 20px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            /* Importante: esconde qualquer coisa que transborde */
+            overflow: hidden; 
         }
-        #texto-pergunta {
+
+        /* --- INÍCIO DAS MUDANÇAS E NOVOS ESTILOS --- */
+
+        /* Texto para perguntas de MATEMÁTICA (como era antes) */
+        #texto-pergunta-matematica {
             font-size: 4em;
             color: white;
             text-shadow: 3px 3px 6px #000000;
@@ -38,6 +46,55 @@
             padding: 20px;
             text-align: center;
         }
+
+        /* Texto para perguntas de GEOMETRIA (fica FORA do container) */
+        #texto-pergunta-geometria {
+            font-size: 2.5em; /* Um pouco menor, já que é um título */
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 15px; /* Espaço antes do container da forma */
+        }
+        
+        /* Estilo base para as formas (para centralizar) */
+        .forma-geometrica {
+            width: 200px;
+            height: 200px;
+            /* Adiciona uma sombra para destacar do fundo */
+            filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.4));
+        }
+
+        /* Estilos específicos por ID (que vem do 'questao.forma') */
+        /* Usamos 'lower' no HTML para garantir que "Quadrado" vire "quadrado" */
+        
+        #quadrado {
+            background-color: #007bff; /* Azul */
+        }
+
+        #círculo {
+            background-color: #dc3545; /* Vermelho */
+            border-radius: 50%; /* Faz o círculo */
+        }
+
+        #triângulo {
+            /* Triângulo é feito com bordas, por isso é diferente */
+            width: 0;
+            height: 0;
+            background-color: transparent; 
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 200px solid #28a745; /* Verde */
+        }
+
+        #retângulo {
+            background-color: #ffc107; /* Amarelo */
+            width: 300px; /* Mais largo que alto */
+            height: 150px;
+        }
+        
+        /* --- FIM DAS MUDANÇAS --- */
+
+
+        /* O resto do seu CSS (placar, botões, etc.) fica aqui */
         #opcoes-container {
             display: flex;
             flex-wrap: wrap;
@@ -53,18 +110,12 @@
             background-color: #007bff;
             color: white;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.1s ease;
             min-width: 100px;
-        }
-        .opcao:hover:not(:disabled) {
-            background-color: #0056b3;
-            transform: translateY(-2px);
         }
         .opcao:disabled {
             color: white;
             opacity: 0.7;
             cursor: not-allowed;
-            box-shadow: none;
         }
         #form-proxima button {
             font-size: 1.5em;
@@ -74,12 +125,7 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
-        #form-proxima button:hover {
-            background-color: #218838;
-        }
-        /* Estilos para o placar */
         .placar-info {
             font-size: 1.5em;
             font-weight: bold;
@@ -99,7 +145,7 @@
 {% if mensagem %}
     <h2 class="mensagem-final">{{ mensagem }}</h2>
     <form method="get" action="{{ url_for('atividades.index') }}">
-        <a href="{{ url_for('pagInicial.pagina') }}" class="btn">Pagina Inicial</a>
+        <button type="submit" style="font-size: 1.5em; padding: 15px 30px;">Jogar Novamente</button>
     </form>
 {% endif %}
 
@@ -109,9 +155,18 @@
     <h2 class="placar-info">{{ question_info }}</h2>
     <h3 class="placar-info">{{ score_info }}</h3>
 
-    <div id="container-pergunta">
-        <h2 id="texto-pergunta">{{ questao.texto }}</h2>
-    </div>
+    {% if questao.forma %}
+        <h2 id="texto-pergunta-geometria">{{ questao.texto }}</h2>
+
+        <div id="container-pergunta">
+            <div class="forma-geometrica" id="{{ questao.forma | lower }}"></div>
+        </div>
+
+    {% else %}
+        <div id="container-pergunta">
+            <h2 id="texto-pergunta-matematica">{{ questao.texto }}</h2>
+        </div>
+    {% endif %}
     
     <div id="opcoes-container">
         {% for op in questao.opcoes %}
@@ -122,9 +177,7 @@
     <div id="resposta-correta" data-resposta="{{ questao.resposta }}" style="display: none;"></div>
 
     <form method="get" action="{{ url_for('atividades.index') }}" id="form-proxima" style="display: none;">
-        
         <input type="hidden" id="answer-result" name="answered" value="wrong">
-        
         <button type="submit">Próxima Pergunta</button>
     </form>
 
@@ -139,27 +192,18 @@
         const respostaCorretaEl = document.getElementById('resposta-correta');
         const respostaCorreta = respostaCorretaEl.dataset.resposta;
         const formProxima = document.getElementById('form-proxima');
-        
-        // Pega o campo oculto que acabamos de adicionar
         const hiddenAnswerInput = document.getElementById('answer-result');
 
         botoesOpcao.forEach(botao => {
             botao.addEventListener('click', function() {
-                
                 const valorClicado = this.dataset.valor;
                 botoesOpcao.forEach(btn => btn.disabled = true);
 
-                // Verifica se está certo ou errado
                 if (valorClicado === respostaCorreta) {
                     this.style.backgroundColor = 'green';
-                    
-                    // Altera o VALOR do campo oculto para 'correct'
                     hiddenAnswerInput.value = 'correct';
-
                 } else {
                     this.style.backgroundColor = 'red';
-                    // Se estiver errado, não fazemos nada.
-                    // O valor do campo já é 'wrong' por padrão.
                 }
                 
                 formProxima.style.display = 'block';
