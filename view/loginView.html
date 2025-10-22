@@ -44,7 +44,7 @@
         <div class="front_login">
         <img src="{{ url_for('static', filename='imagens/SAAB_Logo.png') }}" 
          alt="Logo SAAB" class="logo-saab">
-        <form action="/login/auth" method="post">
+        <form action="{{ url_for('login.login_post') }}" method="POST">
         <label>Login:</label>
         <input type="text" name="LOGIN_USER" required><br><br>
         

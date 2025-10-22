@@ -9,25 +9,20 @@ class VerificarLog:
             conn = get_connection()
             cursor = conn.cursor()
             
-            print(f"Buscando usuário: {COD_USUARIO}")  
-            
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='USUARIO'")
-            tabela_existe = cursor.fetchone()
-            
-            if not tabela_existe:
-                print("Tabela USUARIO não existe!")
-                return None
-            
-            cursor.execute("SELECT * FROM USUARIO WHERE COD_USUARIO = ?", (COD_USUARIO,))
+            sql = """
+                SELECT U.*, P.NOME 
+                FROM USUARIO U
+                LEFT JOIN PESSOA P ON U.COD_USUARIO = P.COD_USUARIO
+                WHERE U.COD_USUARIO = ?
+            """
+            cursor.execute(sql, (COD_USUARIO,))
             usuario = cursor.fetchone()
             
-            if usuario:
-                print(f"Usuário encontrado: {usuario}") 
+            if usuario: 
                 columns = [column[0] for column in cursor.description]
                 usuario_dict = dict(zip(columns, usuario))
                 return usuario_dict
             else:
-                print("Usuário não encontrado no banco") 
                 return None
                 
         except Exception as e:

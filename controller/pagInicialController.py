@@ -25,7 +25,6 @@ def pagina1():
     try:
         if request.method == "POST":
             COD_USER = request.form.get("COD_USER", "").strip()
-            print(f"Tentando login para usuário: {COD_USER}")
             
             if not COD_USER:
                 return render_template("loginView.html", erro="Código de usuário é obrigatório")
@@ -41,7 +40,6 @@ def pagina1():
                 print(f"Login bem-sucedido para usuário: {COD_USER}")
                 return redirect(url_for('pagInicial.pagina'))
             else:
-                print("Usuário não encontrado")
                 return render_template("loginView.html", erro="Usuário não encontrado")
         
         return redirect(url_for('pagInicial.pagina'))

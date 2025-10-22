@@ -23,9 +23,6 @@ def index():
     if current_num > MAX_QUESTIONS:
         mensagem_final = f"Fim de jogo! Você acertou {current_score} de {MAX_QUESTIONS}."
         
-        # --- CORREÇÃO AQUI ---
-        # Em vez de limpar TUDO, remove apenas as chaves do jogo.
-        # Isso mantém o 'COD_USER' (login) intacto.
         session.pop('question_number', None)
         session.pop('score', None)
         # ---------------------

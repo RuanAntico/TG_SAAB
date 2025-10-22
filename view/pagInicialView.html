@@ -87,6 +87,7 @@
     </style>
 </head> 
 <body>
+ 
     <div class="pgInicial">
          <div class="background">
     <img src="{{ url_for('static', filename='imagens/SAAB_Logo.png') }}" 
@@ -94,7 +95,9 @@
 </div>
 
     <h1 style="text-align: center;">Sistema de Gerenciamento</h1>
-    
+    <h2 style="text-align: center; color: #444;">
+        Bem-vindo(a), {{ usuario.NOME or usuario.COD_USUARIO }}!
+    </h2>
     <div class="menu">
         
         

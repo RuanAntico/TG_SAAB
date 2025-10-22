@@ -52,9 +52,9 @@
 <label for="TIPO_USER">Escolha uma opção:</label>
 <select id="TIPO_USER" name="TIPO_USER">
   <option value="">-- Selecione --</option>
-  <option value="valor1">Administrador</option>
-  <option value="valor2">Professor</option>
-  <option value="valor3">Aluno</option>
+  <option value="1">Administrador</option>
+  <option value="2">Professor</option>
+  <option value="3">Aluno</option>
 </select>
 
 <script>
@@ -63,10 +63,10 @@
     const campoTurma = document.getElementById("CampoTurma")
     tipoPessoa.addEventListener("change", function(){
 
-        if (tipoPessoa.value === "valor3"){
+        if (tipoPessoa.value === "3"){
                 CampoTurma.style.display = "block"        
         }
-        else if (tipoPessoa.value === "valor2"){
+        else if (tipoPessoa.value === "2"){
                 CampoTurma.style.display = "block"        
         }
         else{

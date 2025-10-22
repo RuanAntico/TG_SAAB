@@ -23,8 +23,8 @@ def cadastrar():
     SENHA = request.form["SENHA"]
     TIPO_USER = request.form["TIPO_USER"]
     
-    CadastrarDados.criar_pessoa(CPF, RG, NOME, TELEFONE, DT_NASC, EMAIL)
-    CadastrarDados.criar_usuario(LOGIN_USER, SENHA, TIPO_USER)
+    CadastrarDados.criar_pessoa(CPF, RG, NOME, TELEFONE, DT_NASC, EMAIL, TIPO_USER)
+    CadastrarDados.criar_usuario(LOGIN_USER, SENHA)
     
     return "Usuário cadastrado com sucesso!"
     
